@@ -4,6 +4,41 @@ import { useNavigate } from "react-router-dom";
 export default function Home() {
   const navigate = useNavigate();
 
+  const techCards = [
+    {
+      name: "MongoDB",
+      color: "border-green-400 shadow-green-200/60",
+      icon: "🌳",
+      desc: "NoSQL Database: Store and query data efficiently.",
+      bg: "bg-gradient-to-br from-green-50/70 to-green-100/60",
+      path: "/questions/mongodb",
+    },
+    {
+      name: "Express.js",
+      color: "border-gray-400 shadow-gray-200/60",
+      icon: "🚂",
+      desc: "Node.js web framework: APIs, routing, and middleware.",
+      bg: "bg-gradient-to-br from-gray-100/70 to-gray-200/60",
+      path: "/questions/express",
+    },
+    {
+      name: "React",
+      color: "border-blue-400 shadow-blue-200/60",
+      icon: "⚛️",
+      desc: "Frontend library: Build dynamic user interfaces.",
+      bg: "bg-gradient-to-br from-blue-50/70 to-blue-100/60",
+      path: "/questions/react",
+    },
+    {
+      name: "Node.js",
+      color: "border-lime-400 shadow-lime-200/60",
+      icon: "🟢",
+      desc: "JavaScript runtime: Server-side logic and APIs.",
+      bg: "bg-gradient-to-br from-lime-50/70 to-lime-100/60",
+      path: "/questions/node",
+    },
+  ];
+
   return (
     <div className="min-h-[92vh] w-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 via-indigo-100 to-pink-100 px-2">
       <div className="w-full max-w-3xl text-center">
@@ -17,58 +52,16 @@ export default function Home() {
           Practice real-world <span className="font-bold text-purple-600">MERN Stack</span> interview questions and expert answers.<br />
           <span className="text-indigo-600 font-semibold">MongoDB, Express.js, React, Node.js</span> &mdash; All in one place!
         </div>
-        <div className="flex flex-col gap-4 sm:flex-row justify-center mb-8">
-          <button
-            className="bg-gradient-to-r from-purple-600 to-indigo-500 text-white px-8 py-3 rounded-full text-lg font-bold shadow-md hover:scale-105 transition"
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up
-          </button>
-          <button
-            className="bg-gradient-to-r from-pink-400 to-indigo-400 text-white px-8 py-3 rounded-full text-lg font-bold shadow-md hover:scale-105 transition"
-            onClick={() => navigate("/signin")}
-          >
-            Sign In
-          </button>
-        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-3xl mb-12">
-        {[
-          {
-            name: "MongoDB",
-            color: "border-green-400 shadow-green-200/60",
-            icon: "🍃",
-            desc: "NoSQL Database: Store and query data efficiently.",
-            bg: "bg-gradient-to-br from-green-50/70 to-green-100/60"
-          },
-          {
-            name: "Express.js",
-            color: "border-gray-400 shadow-gray-200/60",
-            icon: "🚂",
-            desc: "Node.js web framework: APIs, routing, and middleware.",
-            bg: "bg-gradient-to-br from-gray-100/70 to-gray-200/60"
-          },
-          {
-            name: "React",
-            color: "border-blue-400 shadow-blue-200/60",
-            icon: "⚛️",
-            desc: "Frontend library: Build dynamic user interfaces.",
-            bg: "bg-gradient-to-br from-blue-50/70 to-blue-100/60"
-          },
-          {
-            name: "Node.js",
-            color: "border-lime-400 shadow-lime-200/60",
-            icon: "🟢",
-            desc: "JavaScript runtime: Server-side logic and APIs.",
-            bg: "bg-gradient-to-br from-lime-50/70 to-lime-100/60"
-          },
-        ].map(card => (
+        {techCards.map(card => (
           <div
             key={card.name}
             className={`relative cursor-pointer rounded-2xl border-2 ${card.color} ${card.bg} shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-150 backdrop-blur-sm bg-opacity-70`}
-            onClick={() => navigate("/questions")}
+            onClick={() => navigate(card.path)}
             tabIndex={0}
             role="button"
+            aria-label={`View ${card.name} questions`}
           >
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-5xl drop-shadow">{card.icon}</div>
             <div className="py-8 px-6 flex flex-col items-center justify-center">
@@ -78,12 +71,7 @@ export default function Home() {
           </div>
         ))}
       </div>
-      <button
-        onClick={() => navigate("/questions")}
-        className="bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-10 py-4 rounded-full shadow-lg text-xl font-semibold hover:scale-105 transform transition"
-      >
-        Start Practicing MERN Questions
-      </button>
+      {/* Removed the Start Practicing MERN Questions button */}
     </div>
   );
 }

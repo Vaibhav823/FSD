@@ -1,83 +1,158 @@
-import React, { useState } from "react";
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setTech, setFilter, toggleAnswer } from "../slices/questionsSlice";
 
-const QUESTIONS = [
-  // ...20 questions as in the previous answer
-  { id: 1, tags: ["MongoDB", "Easy"], question: "What is MongoDB and why is it used?", answer: "MongoDB is a NoSQL, document-oriented database..." },
-  { id: 2, tags: ["MongoDB", "Medium"], question: "How do you perform a text search in MongoDB?", answer: "By creating a text index..." },
-  { id: 3, tags: ["MongoDB", "Medium"], question: "Explain the difference between findOne() and find() in MongoDB.", answer: "findOne() returns a single document..." },
-  { id: 4, tags: ["Express", "Easy"], question: "What is Express.js?", answer: "Express.js is a minimal and flexible Node.js web app framework..." },
-  { id: 5, tags: ["Express", "Medium"], question: "How do you handle errors in Express?", answer: "By using error-handling middleware..." },
-  { id: 6, tags: ["Express", "Easy"], question: "How can you create a REST API with Express.js?", answer: "By defining routes and using HTTP methods..." },
-  { id: 7, tags: ["React", "Easy"], question: "What is JSX?", answer: "JSX stands for JavaScript XML..." },
-  { id: 8, tags: ["React", "Medium"], question: "Explain the useState hook in React.", answer: "useState is a React hook that lets you add state..." },
-  { id: 9, tags: ["React", "Medium"], question: "What are props in React?", answer: "Props are arguments passed into React components..." },
-  { id: 10, tags: ["React", "Medium"], question: "How do you fetch data from an API in React?", answer: "You can use the useEffect hook with fetch or axios..." },
-  { id: 11, tags: ["Node.js", "Easy"], question: "What is Node.js?", answer: "Node.js is a runtime environment that allows you to run JavaScript on the server-side." },
-  { id: 12, tags: ["Node.js", "Medium"], question: "How do you handle asynchronous code in Node.js?", answer: "By using callbacks, promises, or async/await." },
-  { id: 13, tags: ["Node.js", "Medium"], question: "What is middleware in Node.js?", answer: "Middleware functions are functions that have access to the request and response objects..." },
-  { id: 14, tags: ["Full Stack", "Easy"], question: "What does MERN stand for?", answer: "MERN stands for MongoDB, Express, React, and Node.js." },
-  { id: 15, tags: ["Full Stack", "Medium"], question: "How does data flow from frontend to backend in MERN?", answer: "The frontend (React) makes API requests to the backend..." },
-  { id: 16, tags: ["Full Stack", "Medium"], question: "Explain CORS and how to handle it in Express.", answer: "CORS is Cross-Origin Resource Sharing. In Express, you can handle it by using the cors middleware package." },
-  { id: 17, tags: ["React", "Easy"], question: "What are React hooks?", answer: "Hooks are special functions that let you use state and other React features in functional components." },
-  { id: 18, tags: ["Node.js", "Easy"], question: "How do you initialize a new Node.js project?", answer: "Run npm init or npm init -y in your project folder." },
-  { id: 19, tags: ["MongoDB", "Medium"], question: "How do you connect MongoDB with Node.js?", answer: "By using the official MongoDB Node.js driver or libraries like mongoose." },
-  { id: 20, tags: ["Full Stack", "Medium"], question: "How do you deploy a MERN application?", answer: "Backend on Heroku/AWS, frontend on Netlify/Vercel, MongoDB on Atlas/cloud." },
+const techStacks = [
+  {
+    label: "MongoDB",
+    color: "border-green-400 shadow-green-200/60",
+    icon: "🌳",
+    bg: "bg-gradient-to-br from-green-50/70 to-green-100/60",
+    value: "mongodb",
+    match: "MongoDB"
+  },
+  {
+    label: "Express.js",
+    color: "border-gray-400 shadow-gray-200/60",
+    icon: "🚂",
+    bg: "bg-gradient-to-br from-gray-100/70 to-gray-200/60",
+    value: "express",
+    match: "Express.js"
+  },
+  {
+    label: "React",
+    color: "border-blue-400 shadow-blue-200/60",
+    icon: "⚛️",
+    bg: "bg-gradient-to-br from-blue-50/70 to-blue-100/60",
+    value: "react",
+    match: "React"
+  },
+  {
+    label: "Node.js",
+    color: "border-lime-400 shadow-lime-200/60",
+    icon: "🟢",
+    bg: "bg-gradient-to-br from-lime-50/70 to-lime-100/60",
+    value: "node",
+    match: "Node.js"
+  },
 ];
 
 export default function Questions() {
-  const [search, setSearch] = useState("");
-  const [showAnswers, setShowAnswers] = useState({});
+  const { tech } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { questions, showAnswer, filter } = useSelector(state => state.questions);
 
-  const filteredQuestions = QUESTIONS.filter(q =>
-    q.question.toLowerCase().includes(search.toLowerCase()) ||
-    q.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
+  // Find which tech is chosen
+  const selectedTech = techStacks.find(
+    t => t.value === (tech ? tech.toLowerCase() : "")
   );
 
-  const toggleAnswer = (id) => {
-    setShowAnswers((prev) => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
+  // If no tech param, show tech stack selection screen
+  if (!selectedTech) {
+    return (
+      <div className="max-w-3xl mx-auto mt-12 p-6 bg-white/80 rounded-xl shadow min-h-[60vh] flex flex-col items-center">
+        <h2 className="text-4xl font-extrabold text-purple-700 mb-6 text-center">
+          Select a Tech Stack
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 w-full">
+          {techStacks.map(card => (
+            <div
+              key={card.label}
+              className={`relative cursor-pointer rounded-2xl border-2 ${card.color} ${card.bg} shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-150 backdrop-blur-sm bg-opacity-70`}
+              onClick={() => {
+                dispatch(setTech(card.value));
+                navigate(`/questions/${card.value}`);
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`Show ${card.label} questions`}
+            >
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-5xl drop-shadow">{card.icon}</div>
+              <div className="py-8 px-6 flex flex-col items-center justify-center">
+                <div className="text-2xl font-extrabold text-purple-700 mb-2 tracking-wide">{card.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Filter questions by tech stack and filter text
+  const filteredQuestions = questions.filter(
+    q =>
+      q.topic.toLowerCase() === selectedTech.match.toLowerCase() &&
+      (q.question.toLowerCase().includes(filter.toLowerCase()) ||
+        q.answer.toLowerCase().includes(filter.toLowerCase()))
+  );
+
+  function handleToggleAnswer(id) {
+    dispatch(toggleAnswer(id));
+  }
+
+  function handleSearchChange(e) {
+    dispatch(setFilter(e.target.value));
+  }
 
   return (
-    <div className="max-w-2xl mx-auto mt-8">
-      <h2 className="text-3xl font-bold text-purple-700 mb-6">Practice Questions</h2>
-      <input
-        type="text"
-        placeholder="Search by keyword or tag (e.g. React, Easy)..."
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        className="w-full mb-6 px-4 py-2 rounded border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-300"
-      />
-      <div className="space-y-6">
-        {filteredQuestions.length === 0 && (
-          <div className="text-gray-500 text-center">No questions found.</div>
-        )}
-        {filteredQuestions.map((q) => (
-          <div key={q.id} className="bg-white/90 rounded-lg shadow p-4 hover:shadow-xl transition">
-            <div className="flex flex-wrap gap-2 mb-2">
-              {q.tags.map(tag => (
-                <span key={tag} className="px-2 py-1 text-xs font-bold rounded bg-purple-100 text-purple-700">{tag}</span>
-              ))}
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="font-semibold text-lg">{q.question}</div>
-              <button
-                onClick={() => toggleAnswer(q.id)}
-                className="text-indigo-500 hover:underline ml-4 font-bold"
-              >
-                {showAnswers[q.id] ? "Hide Answer" : "Show Answer"}
-              </button>
-            </div>
-            {showAnswers[q.id] && (
-              <div className="mt-2 px-4 py-2 bg-indigo-50 rounded text-gray-800">
-                {q.answer}
-              </div>
-            )}
-          </div>
-        ))}
+    <div className="max-w-3xl mx-auto mt-8 p-6 bg-white/80 rounded-xl shadow min-h-[70vh]">
+      <div className="flex items-center gap-3 mb-6">
+        <button
+          className="
+            px-4 py-2 rounded-full font-semibold
+            bg-gradient-to-r from-purple-100 via-indigo-100 to-pink-100
+            text-indigo-700 shadow
+            hover:from-indigo-200 hover:to-purple-200
+            hover:scale-105 transition-all
+            border border-indigo-200
+          "
+          onClick={() => navigate("/questions")}
+        >
+          &larr; Back to Tech Stack
+        </button>
+        <h2 className="text-3xl font-extrabold text-purple-700 ml-2">
+          {selectedTech.label} Interview Questions
+        </h2>
       </div>
+      <div className="mb-6">
+        <input
+          type="text"
+          value={filter}
+          onChange={handleSearchChange}
+          placeholder={`Search ${selectedTech.label} questions...`}
+          className="border rounded px-3 py-2 w-full md:w-72"
+        />
+      </div>
+      {filteredQuestions.length === 0 ? (
+        <div className="text-gray-600 text-center py-12">
+          No questions found for your criteria.
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {filteredQuestions.map(q => (
+            <div
+              key={q.id}
+              className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-5 rounded-lg shadow hover:shadow-md transition"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-purple-600">{q.topic}</span>
+                <button
+                  className="text-indigo-600 underline font-medium"
+                  onClick={() => handleToggleAnswer(q.id)}
+                >
+                  {showAnswer[q.id] ? "Hide Answer" : "Show Answer"}
+                </button>
+              </div>
+              <div className="font-bold text-lg mb-2">{q.question}</div>
+              {showAnswer[q.id] && (
+                <div className="text-gray-700">{q.answer}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,75 +1,79 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const getUsers = () => JSON.parse(localStorage.getItem("users") || "[]");
-const setLoggedIn = id => localStorage.setItem("loggedInUserId", id);
+import { useDispatch } from "react-redux";
+import { signIn } from "../slices/authSlice";
 
 export default function SignIn() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   function handleChange(e) {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-    if (!form.email || !form.password) {
-      setError("All fields are required.");
-      return;
-    }
-    const users = getUsers();
-    const user = users.find(u => u.email === form.email && u.password === form.password);
-    if (!user) {
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find(
+      (u) => u.email === form.email && u.password === form.password
+    );
+    if (user) {
+      dispatch(signIn(user.id));
+      navigate("/profile");
+    } else {
       setError("Invalid email or password.");
-      return;
     }
-    setLoggedIn(user.id);
-    navigate("/profile");
   }
 
   return (
-    <div className="min-h-[92vh] w-full flex items-center justify-center bg-gradient-to-br from-purple-100 via-indigo-100 to-pink-100">
-      <form
-        className="bg-white/90 p-8 rounded-2xl shadow-xl flex flex-col gap-4 w-full max-w-md"
-        onSubmit={handleSubmit}
-      >
-        <h2 className="text-3xl font-extrabold text-purple-700 mb-2 text-center">Sign In</h2>
-        <input
-          className="px-4 py-2 rounded border border-purple-300 focus:ring-2 focus:ring-purple-300"
-          placeholder="Email"
-          type="email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-        />
-        <input
-          className="px-4 py-2 rounded border border-purple-300 focus:ring-2 focus:ring-purple-300"
-          placeholder="Password"
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-        />
-        {error && <div className="text-red-600 text-center">{error}</div>}
+    <div className="max-w-md mx-auto mt-16 bg-white/80 p-8 rounded-xl shadow">
+      <h2 className="text-3xl font-bold text-purple-700 mb-6">Sign In</h2>
+      {error && (
+        <div className="mb-4 text-red-600 font-semibold">{error}</div>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-semibold mb-1">Email</label>
+          <input
+            className="w-full px-3 py-2 border rounded"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            autoFocus
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Password</label>
+          <input
+            className="w-full px-3 py-2 border rounded"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <button
-          className="mt-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-6 py-2 rounded-full font-bold shadow hover:scale-105 transition"
           type="submit"
+          className="bg-indigo-500 text-white px-6 py-2 rounded font-bold hover:bg-indigo-600 transition"
         >
           Sign In
         </button>
-        <div className="text-center mt-2">
-          New here?{" "}
-          <span
-            className="text-indigo-700 cursor-pointer font-bold"
-            onClick={() => navigate("/signup")}
-          >
-            Create an account
-          </span>
-        </div>
       </form>
+      <div className="mt-6 text-center">
+        Don't have an account?{" "}
+        <button
+          className="underline text-indigo-500"
+          onClick={() => navigate("/signup")}
+        >
+          Sign Up
+        </button>
+      </div>
     </div>
   );
 }
